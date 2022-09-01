@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body class="root-style">
+    <svg width="400" height="400" id="board"></svg>
+    <div id="victory"></div>
+    <div id="numb">
+      <button id="b1">1</button>
+      <button id="b2">2</button>
+      <button id="b3">3</button>
+      <button id="b4">4</button>
+      <button id="b5">5</button>
+      <button id="b6">6</button>
+      <button id="b7">7</button>
+      <button id="b8">8</button>
+      <button id="b9">9</button>
+      <input id="smallcheck" type="checkbox">small</input>
+      <button id="bX">X</button>
+    </div>
+    <div id="menu">
+      <button id="fillPossible">fill possible</button>
+      <button id="nextSolve">next solve</button>
+      <button id="tofix">to fix</button>
+      <button id="generate">generate</button>
+      <input type="text" id="difficulty" value="70" style="width: 30px"/>
+      <span id="actualDifficulty"></span>
+    </div>
+  </body>
+  <script type="module" src="main.js"></script>
+</html>
