@@ -16,13 +16,13 @@
       <button id="b8">8</button>
       <button id="b9">9</button>
       <input id="smallcheck" type="checkbox">small</input>
-      <button id="bX">X</button>
+      <button id="bX" title="Clear a cell from the grid. Select the cell first, the click on this button.">X</button>
     </div>
     <div id="menu">
-      <button id="fillPossible">fill possible</button>
-      <button id="nextSolve">next solve</button>
-      <button id="tofix">to fix</button>
-      <button id="generate">generate</button>
+      <button id="fillPossible" title="Add the possible small numbers for all cells in the grid.">fill possible</button>
+      <button id="nextSolve" title="Convert one cell from small numbers to a full number. Only works when all small numbers have been entered">next solve</button>
+      <button id="tofix" title="Converts the current problem to a new initial problem, including the user entered full numbers">to fix</button>
+      <button id="generate" title="Generate a new problem from scratch">generate</button>
       <input type="text" id="difficulty" value="70" style="width: 30px"/>
       <span id="actualDifficulty"></span>
     </div>

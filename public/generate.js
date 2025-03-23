@@ -156,11 +156,11 @@ export const removeInfo = (
   if (strategy !== "add-remove" && strategy !== "remove") return numbers;
 
   const attemptedRemovalCount = { current: 0 };
-  const maxAttempts = 500;
+  const maxAttempts = 100;
   const hardestMap = { difficulty: 0 };
 
   const stopGeneration = () =>
-    hardestMap.difficulty > 80 || attemptedRemovalCount.current > maxAttempts;
+    attemptedRemovalCount.current > maxAttempts;
 
   const removeNumber = (original, originalDifficulty) => {
     if (stopGeneration()) return;
@@ -210,13 +210,17 @@ export const removeInfo = (
       return;
     }
 
-    for (const removeAttempt of possibleRemovals.reverse().slice(0, 2)) {
+    const depthChoiceCount = removeOrder.length % 5 == 0 ? 2 : 1;
+
+    for (const removeAttempt of possibleRemovals.reverse().slice(0, depthChoiceCount)) {
       removeNumber(removeAttempt.original, removeAttempt.difficulty);
       if (stopGeneration()) break;
     }
   };
 
   removeNumber(numbers, 0);
+
+  console.log("generation done. Removal attempt: ", attemptedRemovalCount.current);
 
   document.getElementById(
     "actualDifficulty"
