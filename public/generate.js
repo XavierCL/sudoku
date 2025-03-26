@@ -156,7 +156,7 @@ export const removeInfo = (
   if (strategy !== "add-remove" && strategy !== "remove") return numbers;
 
   const attemptedRemovalCount = { current: 0 };
-  const maxAttempts = 100;
+  const maxAttempts = 20;
   const hardestMap = { difficulty: 0 };
 
   const stopGeneration = () =>
