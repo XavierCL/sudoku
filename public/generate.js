@@ -1,5 +1,11 @@
 import { getDifficulty } from "./solver.js";
-import { getEmptyCell, range, shuffle, transpose } from "./utils.js";
+import {
+  getEmptyCell,
+  getNumbersInError,
+  range,
+  shuffle,
+  transpose,
+} from "./utils.js";
 
 const generateStatic = () => {
   const simpleBase = [
@@ -18,9 +24,6 @@ const generateStatic = () => {
     row.map((value) => ({ type: "fixed", value }))
   );
 };
-
-// Transformation ideas
-// 3-column & 3-row swaps
 
 const makeRandom = (numbers) => {
   const numberMapOut = shuffle(
@@ -54,6 +57,25 @@ const makeRandom = (numbers) => {
     )
   );
 
+  // Swap row triplets
+  const threeRowSwaps = shuffle(range(3));
+  numbers = threeRowSwaps.flatMap((threeRowSquareSapMap) => [
+    numbers[threeRowSquareSapMap * 3],
+    numbers[threeRowSquareSapMap * 3 + 1],
+    numbers[threeRowSquareSapMap * 3 + 2],
+  ]);
+
+  // Swap column triplets
+  const threeColumnSwaps = shuffle(range(3));
+  numbers = transpose(numbers);
+  numbers = transpose(
+    threeColumnSwaps.flatMap((threeColumnSquareSapMap) => [
+      numbers[threeColumnSquareSapMap * 3],
+      numbers[threeColumnSquareSapMap * 3 + 1],
+      numbers[threeColumnSquareSapMap * 3 + 2],
+    ])
+  );
+
   // Flips and rotations
   const yIncrement = Boolean(Math.round(Math.random()));
   const xIncrement = Boolean(Math.round(Math.random()));
@@ -70,6 +92,60 @@ const makeRandom = (numbers) => {
 
 export const generateFull = () => {
   return makeRandom(generateStatic());
+};
+
+export const generateFull2 = (numbers = undefined) => {
+  numbers ??= range(9).map((_) => range(9).map((_) => ({ type: "userSmall" })));
+
+  if (numbers.every((row) => row.every(({ type }) => type == "fixed"))) {
+    console.log("Generated full grid");
+    return numbers;
+  }
+
+  // Generate next depth possibilities
+  const possibilities = numbers
+    .map((row, rowIndex) =>
+      row.map(({ type }, columnIndex) => {
+        if (type == "fixed") {
+          return { type: "solved" };
+        }
+
+        const newGrids = shuffle(range(1, 10))
+          .map((value) => {
+            const numberCopy = numbers.map((row2) =>
+              row2.map((cell2) => cell2)
+            );
+            numberCopy[rowIndex][columnIndex] = { type: "fixed", value };
+            return numberCopy;
+          })
+          .filter((grid) =>
+            getNumbersInError(grid).every((row) => row.every((cell) => !cell))
+          );
+
+        return { type: "possibility", grids: newGrids };
+      })
+    )
+    .flatMap((row) => row);
+
+  // Sort by least possibility
+  const flatPossibilities = possibilities
+    .filter(({ type }) => type === "possibility")
+    .sort(
+      ({ grids: gridsA }, { grids: gridsB }) => gridsA.length - gridsB.length
+    );
+
+  for (let i = 0; i < flatPossibilities.length; ++i) {
+    const cellPossibilities = flatPossibilities[i].grids;
+
+    for (let p = 0; p < cellPossibilities.length; ++p) {
+      const tentativeFullGrid = generateFull2(cellPossibilities[p]);
+      if (tentativeFullGrid !== undefined) return tentativeFullGrid;
+    }
+
+    return undefined;
+  }
+
+  return undefined;
 };
 
 export const removeInfo = (
@@ -156,11 +232,10 @@ export const removeInfo = (
   if (strategy !== "add-remove" && strategy !== "remove") return numbers;
 
   const attemptedRemovalCount = { current: 0 };
-  const maxAttempts = 20;
+  const maxAttempts = 50;
   const hardestMap = { difficulty: 0 };
 
-  const stopGeneration = () =>
-    attemptedRemovalCount.current > maxAttempts;
+  const stopGeneration = () => attemptedRemovalCount.current > maxAttempts;
 
   const removeNumber = (original, originalDifficulty) => {
     if (stopGeneration()) return;
@@ -212,7 +287,9 @@ export const removeInfo = (
 
     const depthChoiceCount = removeOrder.length % 5 == 0 ? 2 : 1;
 
-    for (const removeAttempt of possibleRemovals.reverse().slice(0, depthChoiceCount)) {
+    for (const removeAttempt of possibleRemovals
+      .reverse()
+      .slice(0, depthChoiceCount)) {
       removeNumber(removeAttempt.original, removeAttempt.difficulty);
       if (stopGeneration()) break;
     }
@@ -220,7 +297,10 @@ export const removeInfo = (
 
   removeNumber(numbers, 0);
 
-  console.log("generation done. Removal attempt: ", attemptedRemovalCount.current);
+  console.log(
+    "generation done. Removal attempt: ",
+    attemptedRemovalCount.current
+  );
 
   document.getElementById(
     "actualDifficulty"

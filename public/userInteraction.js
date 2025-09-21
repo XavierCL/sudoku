@@ -1,5 +1,5 @@
 import redraw, { HEIGHT, WIDTH } from "./drawer.js";
-import { generateFull, removeInfo } from "./generate.js";
+import { generateFull, generateFull2, removeInfo } from "./generate.js";
 import { fillPossible, getDifficulty, pruneSmall, solve } from "./solver.js";
 import {
   addToHistory,
@@ -152,7 +152,7 @@ const addGenerateClick = () => {
   generateButton.addEventListener("click", () => {
     resetHistory(
       removeInfo(
-        generateFull(),
+        generateFull2(),
         Number(document.getElementById("difficulty").value),
         "remove"
       )
